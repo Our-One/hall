@@ -24,22 +24,22 @@ export async function HallNav() {
             Ship feed
           </Link>
           <Link
-            href="/inside"
+            href="/inside/proposals"
             className="font-sans text-xs text-stone-500 transition-colors hover:text-stone-800"
+          >
+            Proposals
+          </Link>
+          <Link
+            href="/inside"
+            className="hidden font-sans text-xs text-stone-500 transition-colors hover:text-stone-800 sm:inline"
           >
             Inside
           </Link>
           <Link
             href="/inside/constitution"
-            className="hidden font-sans text-xs text-stone-500 transition-colors hover:text-stone-800 sm:inline"
+            className="hidden font-sans text-xs text-stone-500 transition-colors hover:text-stone-800 md:inline"
           >
             Constitution
-          </Link>
-          <Link
-            href="/inside/members"
-            className="hidden font-sans text-xs text-stone-500 transition-colors hover:text-stone-800 sm:inline"
-          >
-            Members
           </Link>
           {isAuthed ? (
             <span className="font-sans text-xs text-stone-700">

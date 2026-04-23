@@ -3,3 +3,5 @@
 // ../external/ and are NOT migrated by Hall.
 export * from "./posts";
 export * from "./post-assets";
+export * from "./proposals";
+export * from "./votes";
