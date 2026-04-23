@@ -3,7 +3,12 @@ import { LogoHorizontal } from "@/components/logo";
 import { auth } from "@/auth";
 
 export async function HallNav() {
-  const session = await auth();
+  // Don't let an auth failure blow up the page — worst case, nav renders
+  // as "not signed in" and the user can still reach /login.
+  const session = await auth().catch((err) => {
+    console.error("HallNav: auth() failed", err);
+    return null;
+  });
   const isAuthed = !!session?.user;
 
   return (

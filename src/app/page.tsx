@@ -2,15 +2,28 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { HallNav } from "@/components/nav";
 import { HallFooter } from "@/components/footer";
-import { PostCard } from "@/components/post-card";
+import { PostCard, type PostCardData } from "@/components/post-card";
 import { listPublishedPosts } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const session = await auth();
+  // Defensive: neither auth nor DB failures should blow up the homepage.
+  // We degrade to "not signed in + no posts" if either layer is broken.
+  const session = await auth().catch((err) => {
+    console.error("HomePage: auth() failed", err);
+    return null;
+  });
   const isAuthed = !!session?.user;
-  const posts = await listPublishedPosts();
+
+  let posts: PostCardData[] = [];
+  let postsError = false;
+  try {
+    posts = await listPublishedPosts();
+  } catch (err) {
+    console.error("HomePage: listPublishedPosts failed", err);
+    postsError = true;
+  }
 
   return (
     <>
@@ -70,10 +83,19 @@ export default async function HomePage() {
               ))}
             </div>
 
-            {posts.length === 0 && (
+            {posts.length === 0 && !postsError && (
               <div className="rounded-xl border border-stone-200 bg-white p-12 text-center">
                 <p className="font-serif text-xl text-stone-700">
                   No ships yet. Check back soon.
+                </p>
+              </div>
+            )}
+
+            {postsError && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
+                <p className="font-serif text-base text-amber-900">
+                  Couldn&rsquo;t load the feed right now. This usually means a
+                  configuration issue — see <code className="font-mono text-sm">/api/health</code> for diagnostics.
                 </p>
               </div>
             )}

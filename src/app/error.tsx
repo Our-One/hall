@@ -1,6 +1,7 @@
 "use client";
 
 export default function ErrorPage({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -16,9 +17,15 @@ export default function ErrorPage({
           Hall hit an error.
         </h1>
         <p className="mt-4 font-serif text-stone-600">
-          We&rsquo;ll log this and ship a fix. The build log will have a note
-          if it&rsquo;s a known one.
+          We&rsquo;ll log this and ship a fix. If you&rsquo;re an operator,
+          check <code className="font-mono text-sm">/api/health</code> for
+          env + DB diagnostics.
         </p>
+        {error.digest && (
+          <p className="mt-3 font-mono text-xs text-stone-400">
+            Digest: {error.digest}
+          </p>
+        )}
         <button
           onClick={reset}
           className="mt-8 inline-flex items-center justify-center border-2 border-stone-900 bg-stone-900 px-5 py-3 font-sans text-sm font-medium text-[#FDFBF7] hover:bg-stone-700"
