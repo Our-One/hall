@@ -123,6 +123,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 24 * 60 * 60, // 24 hours server-side session lifetime
   },
   cookies: {
+    // Cross-subdomain cookies for our.one SSO.
+    // Cookie scoped to .our.one is shared across our.one, hall.our.one,
+    // and every future flagship subdomain. Combined with shared DATABASE_URL
+    // and shared AUTH_SECRET, sign-in on any our.one app signs you in on
+    // all of them.
     sessionToken: {
       name: isDev ? "next-auth.session-token" : "__Secure-next-auth.session-token",
       options: {
@@ -130,8 +135,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax" as const,
         path: "/",
         secure: !isDev,
+        domain: isDev ? undefined : ".our.one",
         // No maxAge — cookie expires when browser closes (session-only).
         // Constitutional compliance: "Session-only cookies. No behavioral tracking."
+      },
+    },
+    callbackUrl: {
+      name: isDev ? "next-auth.callback-url" : "__Secure-next-auth.callback-url",
+      options: {
+        sameSite: "lax" as const,
+        path: "/",
+        secure: !isDev,
+        domain: isDev ? undefined : ".our.one",
+      },
+    },
+    csrfToken: {
+      name: isDev ? "next-auth.csrf-token" : "__Host-next-auth.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: !isDev,
+        // CSRF token MUST stay host-scoped (no domain) to keep the
+        // __Host- prefix valid in production. Each app validates its
+        // own CSRF tokens; that's fine and correct.
       },
     },
   },
