@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getOperatorSession } from "@/lib/operator";
 import { createPost, updatePost, deletePost, findPostBySlug } from "@/lib/posts";
-import { uploadAsset } from "@/lib/blob";
+import { uploadAsset } from "@/lib/r2";
 import { getDb } from "@/db/client";
 import { users } from "@/db/external/auth";
 import { eq } from "drizzle-orm";
