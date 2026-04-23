@@ -17,7 +17,10 @@ export async function proxy(_request: NextRequest) {
     "object-src 'none'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
+    // form-action allows cross-subdomain form submissions for the SSO
+    // proxy flow (Hall posts OAuth initiations to our.one, etc.) plus
+    // direct OAuth endpoints in case any app ever authenticates locally.
+    "form-action 'self' https://*.our.one https://accounts.google.com https://github.com https://www.linkedin.com",
     ...(isDev ? [] : ["upgrade-insecure-requests"]),
   ].join("; ");
 
