@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/v1/internal/process-events",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/v1/internal/reconcile-points",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
