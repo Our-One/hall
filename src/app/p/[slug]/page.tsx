@@ -4,19 +4,17 @@ import { auth } from "@/auth";
 import { HallNav } from "@/components/nav";
 import { HallFooter } from "@/components/footer";
 import { PostCard } from "@/components/post-card";
-import { SEED_POSTS } from "@/lib/seed-posts";
+import { getPostBySlug } from "@/lib/posts";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return SEED_POSTS.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = SEED_POSTS.find((p) => p.slug === slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
   return {
     title: post.title,
@@ -25,13 +23,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: post.title,
       type: "article",
       url: `https://hall.our.one/p/${slug}`,
+      images: post.heroUrl ? [{ url: post.heroUrl }] : undefined,
     },
   };
 }
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const post = SEED_POSTS.find((p) => p.slug === slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   const session = await auth();

@@ -2,3 +2,4 @@
 // Tables managed by other Our.one repos (auth, subscribers, etc.) live in
 // ../external/ and are NOT migrated by Hall.
 export * from "./posts";
+export * from "./post-assets";

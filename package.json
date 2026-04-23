@@ -26,6 +26,7 @@
     "@auth/drizzle-adapter": "^1.11.1",
     "@neondatabase/serverless": "^1.0.2",
     "@next/third-parties": "^16.2.1",
+    "@vercel/blob": "^2.3.3",
     "drizzle-orm": "^0.45.1",
     "next": "16.1.6",
     "next-auth": "^5.0.0-beta.30",

@@ -3,11 +3,14 @@ import { auth } from "@/auth";
 import { HallNav } from "@/components/nav";
 import { HallFooter } from "@/components/footer";
 import { PostCard } from "@/components/post-card";
-import { SEED_POSTS } from "@/lib/seed-posts";
+import { listPublishedPosts } from "@/lib/posts";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const session = await auth();
   const isAuthed = !!session?.user;
+  const posts = await listPublishedPosts();
 
   return (
     <>
@@ -62,12 +65,12 @@ export default async function HomePage() {
         <section className="px-6 py-12 md:py-16">
           <div className="mx-auto max-w-[64rem]">
             <div className="flex flex-col gap-8 md:gap-10">
-              {SEED_POSTS.map((post) => (
+              {posts.map((post) => (
                 <PostCard key={post.slug} post={post} isAuthed={isAuthed} />
               ))}
             </div>
 
-            {SEED_POSTS.length === 0 && (
+            {posts.length === 0 && (
               <div className="rounded-xl border border-stone-200 bg-white p-12 text-center">
                 <p className="font-serif text-xl text-stone-700">
                   No ships yet. Check back soon.
