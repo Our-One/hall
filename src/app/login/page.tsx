@@ -7,9 +7,13 @@ export const metadata = {
 };
 
 const isDev = process.env.NODE_ENV === "development";
-const hasGitHub = !!process.env.AUTH_GITHUB_ID;
-const hasGoogle = !!process.env.AUTH_GOOGLE_ID;
-const hasOAuth = hasGitHub || hasGoogle;
+
+// In production, this is the URL Hall returns the user to after OAuth
+// completes on our.one. In dev, the cross-domain proxy doesn't apply
+// (different localhost ports can't share cookies anyway), so OAuth
+// buttons are hidden in dev mode.
+const PROD_HALL_BASE = "https://hall.our.one";
+const PROD_OUR_ONE_BASE = "https://our.one";
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -30,10 +34,24 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
+function LinkedInIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.114-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+    </svg>
+  );
+}
+
 function getSafeRedirect(callbackUrl?: string): string {
   if (!callbackUrl) return "/inside";
   if (callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")) return callbackUrl;
   return "/inside";
+}
+
+function crossSigninUrl(provider: string, hallPath: string): string {
+  // OAuth runs on our.one; user comes back to Hall at hallPath.
+  const callback = `${PROD_HALL_BASE}${hallPath}`;
+  return `${PROD_OUR_ONE_BASE}/cross-signin?provider=${encodeURIComponent(provider)}&callbackUrl=${encodeURIComponent(callback)}`;
 }
 
 export default async function LoginPage({
@@ -123,40 +141,42 @@ export default async function LoginPage({
           </form>
         )}
 
-        {hasOAuth && (
-          <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-stone-200" />
-            <span className="font-sans text-xs text-stone-500">or</span>
-            <div className="h-px flex-1 bg-stone-200" />
-          </div>
-        )}
+        {!isDev && (
+          <>
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-stone-200" />
+              <span className="font-sans text-xs text-stone-500">or</span>
+              <div className="h-px flex-1 bg-stone-200" />
+            </div>
 
-        {hasGitHub && (
-          <form
-            action={async () => {
-              "use server";
-              await signIn("github", { redirectTo });
-            }}
-          >
-            <button type="submit" className={secondaryButton}>
+            <a
+              href={crossSigninUrl("github", redirectTo)}
+              className={secondaryButton}
+            >
               <GitHubIcon className="h-4 w-4" />
               Continue with GitHub
-            </button>
-          </form>
-        )}
+            </a>
 
-        {hasGoogle && (
-          <form
-            action={async () => {
-              "use server";
-              await signIn("google", { redirectTo });
-            }}
-          >
-            <button type="submit" className={secondaryButton}>
+            <a
+              href={crossSigninUrl("google", redirectTo)}
+              className={secondaryButton}
+            >
               <GoogleIcon className="h-4 w-4" />
               Continue with Google
-            </button>
-          </form>
+            </a>
+
+            <a
+              href={crossSigninUrl("linkedin", redirectTo)}
+              className={secondaryButton}
+            >
+              <LinkedInIcon className="h-4 w-4" />
+              Continue with LinkedIn
+            </a>
+
+            <p className="font-sans text-[11px] text-stone-500 text-center">
+              OAuth runs on our.one; you&rsquo;ll come back to Hall signed in.
+            </p>
+          </>
         )}
 
         <p className="text-center font-sans text-xs text-stone-500">
